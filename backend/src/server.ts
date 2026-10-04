@@ -5,6 +5,7 @@ import { connectDatabase } from "./config/db";
 import expenseRoutes from "./routes/expense.routes";
 import authRoutes from "./routes/auth.routes";
 import { requireAuth, AuthenticatedRequest } from "./middleware/auth.middleware";
+import receiptRoutes from "./routes/receipt.routes";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/expenses", receiptRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({

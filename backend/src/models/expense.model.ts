@@ -16,6 +16,7 @@ export interface ExpenseDocument extends Document {
   date: Date;
   createdAt: Date;
   updatedAt: Date;
+  taxMinor: number;
 }
 
 const expenseSchema = new Schema<ExpenseDocument>(
@@ -38,6 +39,11 @@ const expenseSchema = new Schema<ExpenseDocument>(
       required: true,
       min: 1,
     },
+    taxMinor: {
+  type: Number,
+  required: true,
+  min: 0,
+},
 
     category: {
       type: String,

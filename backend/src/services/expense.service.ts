@@ -4,8 +4,8 @@ import { Expense } from "../models/expense.model";
 
 export const createExpenseSchema = z.object({
   merchant: z.string().trim().min(1).max(150),
-
   amountMinor: z.number().int().positive(),
+  taxMinor: z.number().int().nonnegative(),
 
   category: z.enum([
     "software",

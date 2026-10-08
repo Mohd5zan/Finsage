@@ -32,3 +32,14 @@ export async function createExpense(
 
   return expense;
 }
+
+export async function getUserExpenses(userId: string) {
+  const expenses = await Expense.find({
+    userId: new mongoose.Types.ObjectId(userId),
+  }).sort({
+    date: -1,
+    createdAt: -1,
+  });
+
+  return expenses;
+}

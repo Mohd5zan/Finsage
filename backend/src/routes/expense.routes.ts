@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createExpense,
   createExpenseSchema,
+  getUserExpenses,
 } from "../services/expense.service";
 import {
   requireAuth,
@@ -35,5 +36,21 @@ router.post(
     next(error);
   }
 });
+
+router.get(
+  "/",
+  requireAuth,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const expenses = await getUserExpenses(req.userId!);
+
+      return res.status(200).json({
+        data: expenses,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default router;

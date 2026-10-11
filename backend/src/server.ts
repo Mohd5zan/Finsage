@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express from "express";
+import cors from "cors";
 import { connectDatabase } from "./config/db";
 import expenseRoutes from "./routes/expense.routes";
 import authRoutes from "./routes/auth.routes";
@@ -9,11 +10,17 @@ import receiptRoutes from "./routes/receipt.routes";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", receiptRoutes);
+
 
 app.get("/api/health", (_req, res) => {
   res.json({

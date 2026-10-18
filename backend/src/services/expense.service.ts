@@ -43,3 +43,45 @@ export async function getUserExpenses(userId: string) {
 
   return expenses;
 }
+
+export const updateExpenseSchema = createExpenseSchema.partial();
+
+export async function updateExpense(
+  userId: string,
+  expenseId: string,
+  input: z.infer<typeof updateExpenseSchema>
+) {
+  if (!mongoose.Types.ObjectId.isValid(expenseId)) {
+    return null;
+  }
+
+  const expense = await Expense.findOneAndUpdate(
+    {
+      _id: expenseId,
+      userId: new mongoose.Types.ObjectId(userId),
+    },
+    { $set: input },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  return expense;
+}
+
+export async function deleteExpense(
+  userId: string,
+  expenseId: string
+) {
+  if (!mongoose.Types.ObjectId.isValid(expenseId)) {
+    return null;
+  }
+
+  const expense = await Expense.findOneAndDelete({
+    _id: expenseId,
+    userId: new mongoose.Types.ObjectId(userId),
+  });
+
+  return expense;
+}

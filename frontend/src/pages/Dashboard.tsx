@@ -217,7 +217,10 @@ const monthlyBreakdown = Object.entries(monthlyTotals)
             </p>
           </div>
 
-          <ExpenseList expenses={filteredExpenses} />
+          <ExpenseList
+  expenses={filteredExpenses}
+  onExpensesChanged={loadExpenses}
+/>
         </section>
       </div>
     </main>

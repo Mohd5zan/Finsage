@@ -1,9 +1,14 @@
 import { Router } from "express";
+
 import {
   createExpense,
   createExpenseSchema,
   getUserExpenses,
+  updateExpense,
+  updateExpenseSchema,
+  deleteExpense,
 } from "../services/expense.service";
+
 import {
   requireAuth,
   AuthenticatedRequest,
@@ -52,5 +57,69 @@ router.get(
     }
   }
 );
+
+
+router.put(
+  "/:id",
+  requireAuth,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const result = updateExpenseSchema.safeParse(req.body);
+
+      if (!result.success || Object.keys(result.data ?? {}).length === 0) {
+        return res.status(400).json({
+          error: "Invalid expense data",
+          details: result.success
+            ? "Provide at least one field to update"
+            : result.error.flatten(),
+        });
+      }
+
+      const expense = await updateExpense(
+        req.userId!,
+        req.params.id,
+        result.data
+      );
+
+      if (!expense) {
+        return res.status(404).json({
+          error: "Expense not found",
+        });
+      }
+
+      return res.status(200).json({
+        data: expense,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  "/:id",
+  requireAuth,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const expense = await deleteExpense(
+        req.userId!,
+        req.params.id
+      );
+
+      if (!expense) {
+        return res.status(404).json({
+          error: "Expense not found",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Expense deleted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 export default router;

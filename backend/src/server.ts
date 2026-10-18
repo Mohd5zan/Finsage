@@ -7,6 +7,7 @@ import expenseRoutes from "./routes/expense.routes";
 import authRoutes from "./routes/auth.routes";
 import { requireAuth, AuthenticatedRequest } from "./middleware/auth.middleware";
 import receiptRoutes from "./routes/receipt.routes";
+import summaryRoutes from "./routes/summary.routes";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", receiptRoutes);
+app.use("/api/summary", summaryRoutes);
 
 
 app.get("/api/health", (_req, res) => {

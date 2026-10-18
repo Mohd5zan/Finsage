@@ -7,6 +7,7 @@ import ExpenseList from "../components/dashboard/ExpenseList";
 import ReceiptUpload from "../components/dashboard/ReceiptUpload";
 import CategoryBreakdown from "../components/dashboard/CategoryBreakdown";
 import MonthlySpending from "../components/dashboard/MonthlySpending";
+import MonthlySummary from "../components/dashboard/MonthlySummary";
 
 
 
@@ -19,6 +20,7 @@ const [dateRange, setDateRange] = useState<DateRange>("this-month");
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [summaryRefreshKey, setSummaryRefreshKey] = useState(0);
 
 async function loadExpenses() {
   const accessToken = localStorage.getItem("accessToken");
@@ -32,6 +34,7 @@ async function loadExpenses() {
   try {
     const data = await getExpenses(accessToken);
     setExpenses(data);
+    setSummaryRefreshKey((key) => key + 1);
     setError("");
   } catch {
     setError("Failed to load expenses.");
@@ -198,12 +201,30 @@ const monthlyBreakdown = Object.entries(monthlyTotals)
         </section>
         <ReceiptUpload onUploadSuccess={loadExpenses} />
        
-<section className="mt-10">
-  <CategoryBreakdown
-    categories={categoryBreakdown}
-    totalSpending={totalSpending}
-  />
-</section>
+
+{filteredExpenses.length === 0 ? (
+  <section className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+    <h3 className="text-lg font-semibold text-slate-900">
+      No expenses found
+    </h3>
+
+    <p className="mt-2 text-sm text-slate-600">
+      {dateRange === "this-month"
+        ? "No expenses recorded this month. Try Last 3 Months or All Time to see earlier expenses."
+        : dateRange === "last-3-months"
+          ? "No expenses recorded in the last 3 months. Try All Time to see your expense history."
+          : "You haven't recorded any expenses yet. Scan a receipt or add an expense to get started."}
+    </p>
+  </section>
+) : (
+  <section className="mt-10">
+    <CategoryBreakdown
+      categories={categoryBreakdown}
+      totalSpending={totalSpending}
+    />
+  </section>
+)}
+
 
 <MonthlySpending months={monthlyBreakdown} />
 
@@ -222,6 +243,11 @@ const monthlyBreakdown = Object.entries(monthlyTotals)
   onExpensesChanged={loadExpenses}
 />
         </section>
+        <MonthlySummary
+  year={new Date().getFullYear()}
+  month={new Date().getMonth() + 1}
+  refreshKey={summaryRefreshKey}
+/>
       </div>
     </main>
   );

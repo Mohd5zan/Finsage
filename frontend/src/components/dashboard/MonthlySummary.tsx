@@ -77,14 +77,7 @@ const [selectedYear, setSelectedYear] = useState(year);
     };
   }, [selectedYear, selectedMonth,refreshKey]);
 
-  const monthLabel = new Date(
-  selectedYear,
-  Number(selectedMonth.split("-")[1]) - 1,
-  1
-).toLocaleDateString("en-IN", {
-  month: "long",
-  year: "numeric",
-});
+
 
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">

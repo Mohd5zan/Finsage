@@ -1,6 +1,11 @@
-function Navbar() {
+
+interface NavbarProps {
+  onLogout: () => void;
+}
+
+function Navbar({ onLogout }: NavbarProps) {
   return (
-    <header className="mb-10 flex items-center justify-between">
+    <header className="mb-10 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           FinSage
@@ -11,25 +16,38 @@ function Navbar() {
         </p>
       </div>
 
-      <nav className="flex items-center gap-2">
-        <button
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
-        >
-          Dashboard
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <nav className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+          >
+            Dashboard
+          </button>
+
+          <button
+            type="button"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900"
+          >
+            Expenses
+          </button>
+
+          <button
+            type="button"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900"
+          >
+            AI Assistant
+          </button>
+        </nav>
 
         <button
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900"
+          type="button"
+          onClick={onLogout}
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
         >
-          Expenses
+          Log out
         </button>
-
-        <button
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900"
-        >
-          AI Assistant
-        </button>
-      </nav>
+      </div>
     </header>
   );
 }

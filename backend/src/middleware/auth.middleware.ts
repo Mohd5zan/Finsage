@@ -1,3 +1,4 @@
+
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
@@ -27,16 +28,17 @@ export function requireAuth(
   const token = authorization.slice("Bearer ".length);
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET as string) as jwt.JwtPayload;
 
-    if (typeof payload !== "object" || !payload.sub) {
-      return res.status(401).json({
-        error: "Invalid access token",
-      });
-    }
-
+   if (
+  typeof payload.sub !== "string" ||
+  payload.sub.length === 0
+) {
+  return res.status(401).json({
+    error: "Invalid access token",
+  });
+}
     req.userId = payload.sub;
-
     next();
   } catch {
     return res.status(401).json({

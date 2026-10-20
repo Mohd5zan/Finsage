@@ -13,7 +13,11 @@ import MonthlySummary from "../components/dashboard/MonthlySummary";
 
 type DateRange = "this-month" | "last-3-months" | "all-time";
 
-function Dashboard() {
+interface DashboardProps {
+  onLogout: () => void;
+}
+
+function Dashboard({ onLogout }: DashboardProps) {
   
 const [dateRange, setDateRange] = useState<DateRange>("this-month");
 
@@ -22,11 +26,13 @@ const [dateRange, setDateRange] = useState<DateRange>("this-month");
   const [error, setError] = useState("");
   const [summaryRefreshKey, setSummaryRefreshKey] = useState(0);
 
+
 async function loadExpenses() {
   const accessToken = localStorage.getItem("accessToken");
 
   if (!accessToken) {
-    setError("Please log in first.");
+    localStorage.removeItem("userName");
+    setError("Please log in to continue.");
     setLoading(false);
     return;
   }
@@ -36,12 +42,27 @@ async function loadExpenses() {
     setExpenses(data);
     setSummaryRefreshKey((key) => key + 1);
     setError("");
-  } catch {
-    setError("Failed to load expenses.");
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err.message === "UNAUTHORIZED"
+    ) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userName");
+      window.location.reload();
+      return;
+    }
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Failed to load expenses."
+    );
   } finally {
     setLoading(false);
   }
 }
+
 
 useEffect(() => {
   loadExpenses();
@@ -151,7 +172,7 @@ const monthlyBreakdown = Object.entries(monthlyTotals)
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-6xl px-6 py-10">
         
-<Navbar />
+<Navbar onLogout={onLogout} />
 
 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <div>

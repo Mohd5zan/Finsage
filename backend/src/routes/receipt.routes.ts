@@ -36,10 +36,20 @@ router.post(
 
       const imageBase64 = req.file.buffer.toString("base64");
 
-      const receiptData = await extractReceiptData(
-        imageBase64,
-        req.file.mimetype
-      );
+      
+    let receiptData;
+
+try {
+  receiptData = await extractReceiptData(
+    imageBase64,
+    req.file.mimetype);
+} catch (error) {
+  console.error("Receipt AI extraction failed:", error);
+
+  return res.status(503).json({
+    error: "Receipt scanning is temporarily unavailable. Please try again shortly.",
+  });
+}
 
 const expense = await createExpense(
   req.userId!,

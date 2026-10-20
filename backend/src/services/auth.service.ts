@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { createRefreshToken } from "./refresh-token.service";
 import { createAccessToken } from "../config/auth";
 
 export const registerSchema = z.object({
@@ -52,6 +51,7 @@ export const loginSchema = z.object({
   password: z.string().min(8).max(72),
 });
 
+
 export async function loginUser(input: LoginInput) {
   const user = await User.findOne({
     email: input.email,
@@ -72,13 +72,8 @@ export async function loginUser(input: LoginInput) {
 
   const accessToken = createAccessToken(user._id.toString());
 
-  const refreshToken = await createRefreshToken(
-    user._id.toString()
-  );
-
   return {
     accessToken,
-    refreshToken: refreshToken.rawToken,
     user: {
       id: user._id,
       name: user.name,
@@ -86,5 +81,6 @@ export async function loginUser(input: LoginInput) {
     },
   };
 }
+
 
 export type LoginInput = z.infer<typeof loginSchema>;

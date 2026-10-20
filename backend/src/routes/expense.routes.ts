@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 
 import {
@@ -13,34 +14,36 @@ import {
   requireAuth,
   AuthenticatedRequest,
 } from "../middleware/auth.middleware";
+
 const router = Router();
 
 router.post(
   "/",
   requireAuth,
   async (req: AuthenticatedRequest, res, next) => {
-  try {
-    const result = createExpenseSchema.safeParse(req.body);
+    try {
+      const result = createExpenseSchema.safeParse(req.body);
 
-    if (!result.success) {
-      return res.status(400).json({
-        error: "Invalid expense data",
-        details: result.error.flatten(),
+      if (!result.success) {
+        return res.status(400).json({
+          error: "Invalid expense data",
+          details: result.error.flatten(),
+        });
+      }
+
+      const expense = await createExpense(
+        req.userId!,
+        result.data
+      );
+
+      return res.status(201).json({
+        data: expense,
       });
+    } catch (error) {
+      next(error);
     }
-
-  const expense = await createExpense(
-  req.userId!,
-  result.data
-);
-
-    return res.status(201).json({
-      data: expense,
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 router.get(
   "/",
@@ -58,12 +61,19 @@ router.get(
   }
 );
 
-
 router.put(
   "/:id",
   requireAuth,
   async (req: AuthenticatedRequest, res, next) => {
     try {
+      const expenseId = req.params.id;
+
+      if (typeof expenseId !== "string") {
+        return res.status(400).json({
+          error: "Invalid expense ID",
+        });
+      }
+
       const result = updateExpenseSchema.safeParse(req.body);
 
       if (!result.success || Object.keys(result.data ?? {}).length === 0) {
@@ -77,7 +87,7 @@ router.put(
 
       const expense = await updateExpense(
         req.userId!,
-        req.params.id,
+        expenseId,
         result.data
       );
 
@@ -101,9 +111,17 @@ router.delete(
   requireAuth,
   async (req: AuthenticatedRequest, res, next) => {
     try {
+      const expenseId = req.params.id;
+
+      if (typeof expenseId !== "string") {
+        return res.status(400).json({
+          error: "Invalid expense ID",
+        });
+      }
+
       const expense = await deleteExpense(
         req.userId!,
-        req.params.id
+        expenseId
       );
 
       if (!expense) {
@@ -120,6 +138,5 @@ router.delete(
     }
   }
 );
-
 
 export default router;

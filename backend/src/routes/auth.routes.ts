@@ -1,7 +1,5 @@
+
 import { Router } from "express";
-import { hashRefreshToken } from "../config/refresh-token";
-import { RefreshToken } from "../models/refresh-token.model";
-import { createAccessToken } from "../config/auth";
 import {
   registerSchema,
   registerUser,
@@ -28,7 +26,10 @@ router.post("/register", async (req, res, next) => {
       data: user,
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "EMAIL_ALREADY_EXISTS") {
+    if (
+      error instanceof Error &&
+      error.message === "EMAIL_ALREADY_EXISTS"
+    ) {
       return res.status(409).json({
         error: "Email is already registered",
       });
@@ -37,7 +38,6 @@ router.post("/register", async (req, res, next) => {
     next(error);
   }
 });
-
 
 router.post("/login", async (req, res, next) => {
   try {
@@ -52,22 +52,14 @@ router.post("/login", async (req, res, next) => {
 
     const user = await loginUser(result.data);
 
-    res.cookie("refreshToken", user.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/api/auth",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     return res.status(200).json({
-      data: {
-        accessToken: user.accessToken,
-        user: user.user,
-      },
+      data: user,
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "INVALID_CREDENTIALS") {
+    if (
+      error instanceof Error &&
+      error.message === "INVALID_CREDENTIALS"
+    ) {
       return res.status(401).json({
         error: "Invalid email or password",
       });
@@ -77,77 +69,10 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/refresh", async (req, res, next) => {
-  try {
-    const rawToken = req.cookies.refreshToken;
-
-    if (!rawToken) {
-      return res.status(401).json({
-        error: "Refresh token required",
-      });
-    }
-
-    const tokenHash = hashRefreshToken(rawToken);
-
-    const storedToken = await RefreshToken.findOne({
-      tokenHash,
-    });
-
-    if (!storedToken) {
-      return res.status(401).json({
-        error: "Invalid refresh token",
-      });
-    }
-
-    if (storedToken.expiresAt < new Date()) {
-      await RefreshToken.deleteOne({
-        _id: storedToken._id,
-      });
-
-      return res.status(401).json({
-        error: "Refresh token expired",
-      });
-    }
-
-    const accessToken = createAccessToken(
-      storedToken.userId.toString()
-    );
-
-    return res.status(200).json({
-      data: {
-        accessToken,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+router.post("/logout", (_req, res) => {
+  return res.status(200).json({
+    message: "Logged out successfully",
+  });
 });
-
-
-router.post("/logout", async (req, res, next) => {
-  try {
-    const rawToken = req.cookies.refreshToken;
-
-    if (rawToken) {
-      const tokenHash = hashRefreshToken(rawToken);
-
-      await RefreshToken.deleteOne({ tokenHash });
-    }
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/api/auth",
-    });
-
-    return res.status(200).json({
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 
 export default router;

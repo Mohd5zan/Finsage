@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export interface Expense {
   _id: string;
   userId: string;
@@ -12,7 +14,7 @@ export interface Expense {
 
 export async function getExpenses(accessToken: string) {
   const response = await fetch(
-    "http://localhost:5000/api/expenses",
+    `${API_URL}/api/expenses`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -20,9 +22,13 @@ export async function getExpenses(accessToken: string) {
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch expenses");
-  }
+ if (response.status === 401) {
+  throw new Error("UNAUTHORIZED");
+}
+
+if (!response.ok) {
+  throw new Error("Failed to fetch expenses");
+}
 
   const result: { data: Expense[] } = await response.json();
 
@@ -41,7 +47,7 @@ export async function updateExpense(
   accessToken: string
 ): Promise<Expense> {
   const response = await fetch(
-    `http://localhost:5000/api/expenses/${encodeURIComponent(expenseId)}`,
+    `${API_URL}/api/expenses/${encodeURIComponent(expenseId)}`,
     {
       method: "PUT",
       headers: {
@@ -66,7 +72,7 @@ export async function deleteExpense(
   accessToken: string
 ): Promise<void> {
   const response = await fetch(
-    `http://localhost:5000/api/expenses/${encodeURIComponent(expenseId)}`,
+    `${API_URL}/api/expenses/${encodeURIComponent(expenseId)}`,
     {
       method: "DELETE",
       headers: {

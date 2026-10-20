@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export interface MonthlySummary {
   year: number;
@@ -20,7 +21,7 @@ export async function getMonthlySummary(
   accessToken: string
 ): Promise<MonthlySummary> {
   const response = await fetch(
-    `http://localhost:5000/api/summary/monthly?year=${year}&month=${month}`,
+    `${API_URL}/api/summary/monthly?year=${year}&month=${month}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

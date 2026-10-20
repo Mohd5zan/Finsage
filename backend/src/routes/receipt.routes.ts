@@ -5,7 +5,7 @@ import {
   AuthenticatedRequest,
 } from "../middleware/auth.middleware";
 import { extractReceiptData } from "../services/ai.service";
-import { createExpense } from "../services/expense.service";
+// import { createExpense } from "../services/expense.service";
 
 const router = Router();
 
@@ -51,23 +51,11 @@ try {
   });
 }
 
-const expense = await createExpense(
-  req.userId!,
-  {
-    merchant: receiptData.merchant,
-    amountMinor: receiptData.amountMinor,
-    taxMinor: receiptData.taxMinor,
-    category: receiptData.category,
-    date: new Date(receiptData.date),
-  }
-);
-
-      return res.status(201).json({
-        data: {
-          expense,
-          receipt: receiptData,
-        },
-      });
+return res.status(200).json({
+  data: {
+    receipt: receiptData,
+  },
+});
     } catch (error) {
       next(error);
     }
